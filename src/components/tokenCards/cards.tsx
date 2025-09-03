@@ -35,10 +35,7 @@ function YouPayCardHeader() {
 }
 
 // ✅ Middle Section (Token Selection + Amount)
-function YouPayCardBody() {
-  const [selectedCrypto, setSelectedCrypto] = useState('USDT');
-  const [amount, setAmount] = useState(0);
-
+function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
   const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto);
 
   const [youPayCoinDetails, setYouPayCoinDetails] = useState<any>({
@@ -54,11 +51,11 @@ function YouPayCardBody() {
   useEffect(() => {
     if (selectedCoin) {
       setYouPayCoinDetails({
-        symbol: selectedCoin,
+        symbol: selectedCoin.symbol,
         amount: amount,
       });
     }
-  }, [selectedCoin]);
+  }, [selectedCoin, amount]);
 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
@@ -75,11 +72,11 @@ function YouPayCardBody() {
 
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
         <Box>
-          <input type="text" value={amount || amount.toFixed(2)} onChange={(e) => setAmount(Number(e.target.value))} style={{ width: '100px', padding: '6px 10px', borderRadius: '8px', backgroundColor: 'rgba(0, 255, 170, 0.05)', color: '#00FFAA', fontWeight: 700, fontSize: '1.25rem', textAlign: 'right', outline: 'none' }} />
+          <input type="number" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => setAmount(Number(e.target.value))} style={{ width: '100px', padding: '6px 10px', borderRadius: '8px', backgroundColor: 'rgba(0, 255, 170, 0.05)', color: '#00FFAA', fontWeight: 700, fontSize: '1.25rem', textAlign: 'right', outline: 'none' }} />
         </Box>
         <Box>
           <Typography variant="caption" component="span" color="rgba(0, 255, 170, 0.7)">
-            ≈ ${amount.toFixed(2)}
+            ≈ ${Number.isNaN(amount) ? '0.00' : amount.toFixed(2)}
           </Typography>
         </Box>
       </Box>
@@ -88,11 +85,11 @@ function YouPayCardBody() {
 }
 
 // ✅ Bottom Section (Balance Info)
-function YouPayCardFooter() {
+function YouPayCardFooter({ selectedCrypto }: any) {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
       <Typography variant="caption" component="span" color="rgba(0, 255, 170, 0.7)">
-        Balance: 16,0.50 USDT
+        Balance: 16.50 {selectedCrypto}
       </Typography>
     </Box>
   );
@@ -100,20 +97,20 @@ function YouPayCardFooter() {
 
 // ✅ You Pay Card's Container
 function YouPayCardBar() {
+  const [selectedCrypto, setSelectedCrypto] = useState('USDT');
+  const [amount, setAmount] = useState(786);
+
   return (
     <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(255, 0, 255, 0.3) 0%, rgba(0, 255, 255, 0.25) 100%)', borderRadius: '16px', color: '#00FFAA', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
       <YouPayCardHeader />
-      <YouPayCardBody />
-      <YouPayCardFooter />
+      <YouPayCardBody selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
+      <YouPayCardFooter selectedCrypto={selectedCrypto} />
     </Box>
   );
 }
 
 // ✅ You Get CardBody with crypto dropdown
-function YouGetCardBody() {
-  const [selectedCrypto, setSelectedCrypto] = useState('BNB');
-  const [amount, setAmount] = useState(2.5);
-
+function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
   const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto);
 
   const [youGetCoinDetails, setYouGetCoinDetails] = useState<any>({
@@ -129,11 +126,11 @@ function YouGetCardBody() {
   useEffect(() => {
     if (selectedCoin) {
       setYouGetCoinDetails({
-        symbol: selectedCoin,
+        symbol: selectedCoin.symbol,
         amount: amount,
       });
     }
-  }, [selectedCoin]);
+  }, [selectedCoin, amount]);
 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
@@ -150,10 +147,10 @@ function YouGetCardBody() {
 
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
         <Typography variant="h5" component="h5" fontWeight="700" color="#00FFAA">
-          {amount.toFixed(2)}
+          {Number.isNaN(amount) ? '0.00' : amount.toFixed(2)}
         </Typography>
         <Typography variant="caption" component="span" color="rgba(0, 255, 170, 0.7)">
-          ≈ ${amount.toFixed(2)}
+          ≈ ${Number.isNaN(amount) ? '0.00' : amount.toFixed(2)}
         </Typography>
       </Box>
     </Box>
@@ -161,11 +158,11 @@ function YouGetCardBody() {
 }
 
 // ✅ You Get Card Footer
-function YouGetCardFooter() {
+function YouGetCardFooter({ selectedCrypto }: any) {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
       <Typography variant="caption" component="span" color="rgba(0, 255, 170, 0.7)">
-        Balance: 48.50 BNB
+        Balance: 48.50 {selectedCrypto}
       </Typography>
     </Box>
   );
@@ -173,13 +170,16 @@ function YouGetCardFooter() {
 
 // ✅ You Get Card Container
 function YouGetCardBar() {
+  const [selectedCrypto, setSelectedCrypto] = useState('BNB');
+  const [amount, setAmount] = useState(2.5);
+
   return (
     <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7) 0%, rgba(0, 255, 170, 0.2) 100%)', borderRadius: '16px', color: '#00FFAA' }}>
       <Typography variant="body2" component="span" fontWeight="600" color="#00FFAA">
         You Get
       </Typography>
-      <YouGetCardBody />
-      <YouGetCardFooter />
+      <YouGetCardBody selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
+      <YouGetCardFooter selectedCrypto={selectedCrypto} />
     </Box>
   );
 }
@@ -191,8 +191,8 @@ function ExchangeButton() {
   return (
     <Box position={'relative'} width={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} my={-1}>
       <Box position={'absolute'}>
-        <IconButton onClick={() => setToggleSwitchCrypto(!toggleSwitchCrypto)} sx={{ transform: toggleSwitchCrypto ? 'rotate(180deg)' : 'rotate(360deg)', backgroundColor: '#0A1929', color: '#00FFAA', p: 1.5, borderRadius: '50%', border: '1px solid', borderColor: '#0A1929', zIndex: 2, '&:hover': { backgroundColor: '#0A1929', transition: 'transform 0.3s ease-in-out' } }}>
-          <TbArrowsExchange2 size={28} style={{ transform: 'rotate(90deg)' }} />
+        <IconButton size="large" onClick={() => setToggleSwitchCrypto(!toggleSwitchCrypto)} sx={{ transform: toggleSwitchCrypto ? 'rotate(180deg)' : 'rotate(360deg)', backgroundColor: '#0A1929', color: '#00FFAA', p: 1.5, borderRadius: '50%', border: '1px solid', borderColor: '#0A1929', zIndex: 2, '&:hover': { backgroundColor: '#0A1929', transition: 'transform 0.3s ease-in-out' } }}>
+          <TbArrowsExchange2 size={30} style={{ transform: 'rotate(90deg)' }} />
         </IconButton>
       </Box>
     </Box>
