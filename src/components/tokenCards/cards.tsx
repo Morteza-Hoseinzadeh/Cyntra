@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Box, Button, IconButton, MenuItem, Select, Tooltip, Typography, SelectChangeEvent } from '@mui/material';
+import { Box, Button, IconButton, MenuItem, Select, Tooltip, Typography, SelectChangeEvent, Dialog, DialogContent } from '@mui/material';
 import { SiBinance, SiBitcoin, SiCardano, SiEthereum, SiTether } from 'react-icons/si';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbArrowsExchange2 } from 'react-icons/tb';
@@ -199,21 +199,64 @@ function ExchangeButton() {
   );
 }
 
-// ✅ Main Card Component
-export default function Cards() {
+function ConnectWallet() {
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const wallets = [
+    { name: 'MetaMask', logo: '/assets/logo/MetaMask_Fox_Logo.png' },
+    { name: 'Coinbase', logo: '/assets/logo/Coinbase.png' },
+    { name: 'TrustWallet', logo: '/assets/logo/trust-wallet.png' },
+  ];
+
   const tooltip_text = 'Wallet connection is not available yet to ensure your privacy and security, and to maintain trust with our clients.';
 
+  return (
+    <Box>
+      <Box>
+        <Tooltip title={tooltip_text} placement="top" arrow>
+          <Button onClick={handleOpen} variant="contained" fullWidth sx={{ mt: 1, py: 1.5, borderRadius: '12px', fontWeight: '600', fontSize: '1rem', textTransform: 'none', backgroundColor: '#1565C0', color: '#fff', '&:hover': { boxShadow: '0 0 10px rgba(25, 118, 210, 1)' } }}>
+            Connect Wallet
+          </Button>
+        </Tooltip>
+      </Box>
+
+      {/* Wallets Modal */}
+      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth PaperProps={{ sx: { backgroundColor: 'rgba(10, 25, 41, 1)', borderRadius: '16px', p: 2 } }}>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3 }}>
+          <Typography variant="h6" color="#1976D2" textAlign="center">
+            Continue With
+          </Typography>
+          {wallets.map((wallet) => (
+            <Button key={wallet.name} disabled variant="contained" fullWidth sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'flex-start', py: 1.5, px: 2, borderRadius: '12px', textTransform: 'none', fontWeight: 600, fontSize: '1rem', color: '#fff' }}>
+              <Box component="img" src={wallet.logo} alt={`${wallet.name}_Logo`} sx={{ width: 32, height: 32, borderRadius: '6px', objectFit: 'contain', backgroundColor: '#fff', p: 0.5 }} />
+              <Typography variant="body1" color="#fff">
+                {wallet.name}
+              </Typography>
+            </Button>
+          ))}
+
+          <Box sx={{ display: 'inline-block', backgroundColor: '#fff', width: '100%', height: '1px', opacity: '0.2' }} />
+
+          <Typography variant="caption" color="rgba(0, 255, 170, 0.7)" textAlign="center" gutterBottom>
+            {tooltip_text}
+          </Typography>
+        </DialogContent>
+      </Dialog>
+    </Box>
+  );
+}
+
+// ✅ Main Card Component
+export default function Cards() {
   return (
     <Box width="100%" display="flex" flexDirection="column" gap={2}>
       <YouPayCardBar />
       <ExchangeButton />
       <YouGetCardBar />
-
-      <Tooltip title={tooltip_text} placement="top" arrow>
-        <Button variant="contained" fullWidth sx={{ mt: 1, py: 1.5, borderRadius: '12px', fontWeight: '600', fontSize: '1rem', textTransform: 'none', backgroundColor: '#1565C0', color: '#fff', '&:hover': { boxShadow: '0 0 10px rgba(25, 118, 210, 1)' } }}>
-          Connect Wallet
-        </Button>
-      </Tooltip>
+      <ConnectWallet />
     </Box>
   );
 }
