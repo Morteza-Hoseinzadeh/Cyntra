@@ -16,10 +16,11 @@ export default function Header() {
           Currency Convertor
         </Typography>
       </Box>
-      <Box display={'flex'} alignItems={'center'} gap={0.5}>
+      <Box position={'relative'} display={'flex'} alignItems={'center'} gap={0.5}>
         <IconButton size="medium" sx={{ backgroundColor: 'rgba(255,255,255, 0.1)' }}>
           <GoBell size={25} color="#fff" />
         </IconButton>
+        <Box position={'absolute'} top={0} right={0} bgcolor={'#00FFAA'} borderRadius={'50%'} width={10} height={10} />
       </Box>
     </Box>
   );
