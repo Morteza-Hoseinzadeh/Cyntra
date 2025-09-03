@@ -215,13 +215,9 @@ function ConnectWallet() {
 
   return (
     <Box>
-      <Box>
-        <Tooltip title={tooltip_text} placement="top" arrow>
-          <Button onClick={handleOpen} variant="contained" fullWidth sx={{ mt: 1, py: 1.5, borderRadius: '12px', fontWeight: '600', fontSize: '1rem', textTransform: 'none', backgroundColor: '#1565C0', color: '#fff', '&:hover': { boxShadow: '0 0 10px rgba(25, 118, 210, 1)' } }}>
-            Connect Wallet
-          </Button>
-        </Tooltip>
-      </Box>
+      <Button onClick={handleOpen} variant="contained" fullWidth sx={{ mt: 1, py: 1.5, borderRadius: '12px', fontWeight: '600', fontSize: '1rem', textTransform: 'none', backgroundColor: '#1565C0', color: '#fff', '&:hover': { boxShadow: '0 0 10px rgba(25, 118, 210, 1)' } }}>
+        Connect Wallet
+      </Button>
 
       {/* Wallets Modal */}
       <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth PaperProps={{ sx: { backgroundColor: 'rgba(10, 25, 41, 1)', borderRadius: '16px', p: 2 } }}>
