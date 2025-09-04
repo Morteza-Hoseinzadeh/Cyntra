@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const { db } = require('../../models/firebase');
 const router = express.Router();
 
-const SECRET_KEY = process.env.SECRET_KEY || 'your-secret-key';
+const SECRET_KEY = process.env.SECRET_KEY;
 
 // Generate token + save user in RTDB
 router.post('/init', async (req, res) => {

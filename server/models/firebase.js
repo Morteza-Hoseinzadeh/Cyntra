@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 
-const serviceAccount = require('./admin-sdk-firebase/currency-convertor-adminsdk.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_JSON);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
