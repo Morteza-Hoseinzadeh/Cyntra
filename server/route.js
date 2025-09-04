@@ -9,4 +9,4 @@ const tokenGenerator = require('./routes/token/route');
 router.use('/crypto', crypto);
 router.use('/auth/provider', tokenGenerator);
 
-module.exports = router;
+module.exports = { router };

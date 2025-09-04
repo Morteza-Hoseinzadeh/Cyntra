@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const next = require('next');
 const http = require('http');
 
-const apiRoutes = require('./server/route');
+const { router: apiRoutes } = require('./server/route');
 
 const PORT = process.env.PORT || 5000;
 const dev = process.env.NODE_ENV !== 'production';
