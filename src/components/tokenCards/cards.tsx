@@ -72,7 +72,7 @@ function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }
 
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
         <Box>
-          <input type="number" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => setAmount(Number(e.target.value))} style={{ width: '100px', padding: '6px 10px', borderRadius: '8px', backgroundColor: 'rgba(0, 255, 170, 0.05)', color: '#00FFAA', fontWeight: 700, fontSize: '1.25rem', textAlign: 'right', outline: 'none' }} />
+          <input type="text" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => setAmount(Number(e.target.value))} style={{ width: '100px', padding: '6px 10px', borderRadius: '8px', backgroundColor: 'rgba(0, 255, 170, 0.05)', color: '#00FFAA', fontWeight: 700, fontSize: '1.25rem', textAlign: 'right', outline: 'none' }} />
         </Box>
         <Box>
           <Typography variant="caption" component="span" color="rgba(0, 255, 170, 0.7)">
