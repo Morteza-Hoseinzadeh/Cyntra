@@ -6,7 +6,7 @@ const router = express.Router();
 const crypto = require('./routes/cryptos/route');
 const tokenGenerator = require('./routes/token/route');
 
-router.use('/crypto', crypto);
+router.use('/crypto/calculate', crypto);
 router.use('/auth/provider', tokenGenerator);
 
 module.exports = { router };
