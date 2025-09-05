@@ -5,6 +5,8 @@ import { Box, Button, IconButton, MenuItem, Select, Typography, SelectChangeEven
 import { SiBinance, SiBitcoin, SiCardano, SiEthereum, SiTether } from 'react-icons/si';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbArrowsExchange2 } from 'react-icons/tb';
+import axios from 'axios';
+import axiosInstance from '@/utils/hooks/axiosInstance';
 
 // ✅ Popular Cryptos Mock
 const cryptoList = [
@@ -50,7 +52,6 @@ function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }
 
   const handleChange = (event: SelectChangeEvent) => {
     setSelectedCrypto(event.target.value);
-    setAmount(0);
   };
 
   useEffect(() => {
@@ -74,7 +75,7 @@ function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }
           <input type="text" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => setAmount(Number(e.target.value))} style={inputStyle} />
         </Box>
         <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-          ≈ ${Number.isNaN(amount) ? '0.00' : amount.toFixed(2)}
+          ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
         </Typography>
       </Box>
     </Box>
@@ -92,7 +93,7 @@ const selectStyle = {
 };
 
 const inputStyle: any = {
-  width: '100px',
+  width: '150px',
   padding: '6px 10px',
   borderRadius: '8px',
   backgroundColor: 'rgba(0, 255, 170, 0.05)',
@@ -163,10 +164,10 @@ function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }
       </Box>
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
         <Typography variant="h5" fontWeight="700" color="#00FFAA">
-          {Number.isNaN(amount) ? '0.00' : amount.toFixed(2)}
+          {Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
         </Typography>
         <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-          ≈ ${Number.isNaN(amount) ? '0.00' : amount.toFixed(2)}
+          ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
         </Typography>
       </Box>
     </Box>
@@ -185,17 +186,7 @@ function YouGetCardFooter({ selectedCrypto }: any) {
 
 function YouGetCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
   return (
-    <Box
-      width="100%"
-      display="flex"
-      flexDirection="column"
-      p={2.5}
-      sx={{
-        background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7) 0%, rgba(0, 255, 170, 0.2) 100%)',
-        borderRadius: '16px',
-        color: '#00FFAA',
-      }}
-    >
+    <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7) 0%, rgba(0, 255, 170, 0.2) 100%)', borderRadius: '16px', color: '#00FFAA' }}>
       <Typography variant="body2" fontWeight="600" color="#00FFAA">
         You Get
       </Typography>
@@ -272,11 +263,11 @@ function ConnectWallet() {
 // ✅ Main Card Component
 export default function Cards() {
   // State for You Pay / You Get
-  const [youPayCrypto, setYouPayCrypto] = useState('USDT');
-  const [youPayAmount, setYouPayAmount] = useState(786);
+  const [youPayCrypto, setYouPayCrypto] = useState('BTC');
+  const [youPayAmount, setYouPayAmount] = useState(0);
 
-  const [youGetCrypto, setYouGetCrypto] = useState('BNB');
-  const [youGetAmount, setYouGetAmount] = useState(2.5);
+  const [youGetCrypto, setYouGetCrypto] = useState('ETH');
+  const [youGetAmount, setYouGetAmount] = useState(0);
 
   const handleExchange = () => {
     setYouPayCrypto((prev) => {
@@ -290,6 +281,23 @@ export default function Cards() {
       return temp;
     });
   };
+
+  const handleFetchData = async () => {
+    const response = await axiosInstance.get(`/api/crypto/calculate?from=${youPayCrypto}&to=${youGetCrypto}&amount=${youPayAmount}`, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const data = response.data;
+    setYouGetAmount(data?.convertedAmount);
+  };
+
+  useEffect(() => {
+    const getData = setTimeout(() => {
+      if (youPayAmount > 0) handleFetchData();
+    }, 1000);
+
+    return () => clearTimeout(getData);
+  }, [youPayCrypto, youGetCrypto, youPayAmount]);
 
   return (
     <Box width="100%" display="flex" flexDirection="column" gap={2}>
