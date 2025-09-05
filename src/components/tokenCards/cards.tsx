@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, Button, IconButton, MenuItem, Select, Typography, SelectChangeEvent, Dialog, DialogContent } from '@mui/material';
+import { Box, Button, IconButton, MenuItem, Select, Typography, SelectChangeEvent, Dialog, DialogContent, Skeleton } from '@mui/material';
 import { SiBinance, SiBitcoin, SiCardano, SiEthereum, SiTether } from 'react-icons/si';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbArrowsExchange2 } from 'react-icons/tb';
@@ -116,19 +116,7 @@ function YouPayCardFooter({ selectedCrypto }: any) {
 
 function YouPayCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
   return (
-    <Box
-      width="100%"
-      display="flex"
-      flexDirection="column"
-      p={2.5}
-      sx={{
-        background: 'linear-gradient(135deg, rgba(255, 0, 255, 0.3) 0%, rgba(0, 255, 255, 0.25) 100%)',
-        borderRadius: '16px',
-        color: '#00FFAA',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
-      }}
-    >
+    <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(255, 0, 255, 0.3) 0%, rgba(0, 255, 255, 0.25) 100%)', borderRadius: '16px', color: '#00FFAA', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
       <YouPayCardHeader />
       <YouPayCardBody selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
       <YouPayCardFooter selectedCrypto={selectedCrypto} />
@@ -137,7 +125,7 @@ function YouPayCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount }:
 }
 
 // ✅ You Get Card Components
-function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
+function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount, loading }: any) {
   const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto);
   const [youGetCoinDetails, setYouGetCoinDetails] = useState({ symbol: selectedCrypto, amount });
 
@@ -163,35 +151,48 @@ function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }
         </Select>
       </Box>
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
-        <Typography variant="h5" fontWeight="700" color="#00FFAA">
-          {Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
-        </Typography>
-        <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-          ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
-        </Typography>
+        {loading ? (
+          <>
+            <Skeleton variant="text" width={80} height={32} />
+            <Skeleton variant="text" width={100} height={20} />
+          </>
+        ) : (
+          <>
+            <Typography variant="h5" fontWeight="700" color="#00FFAA">
+              {Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
+            </Typography>
+            <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
+              ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
+            </Typography>
+          </>
+        )}
       </Box>
     </Box>
   );
 }
 
-function YouGetCardFooter({ selectedCrypto }: any) {
+function YouGetCardFooter({ selectedCrypto, loading }: any) {
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
-      <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-        Balance: 48.50 {selectedCrypto}
-      </Typography>
+      {loading ? (
+        <Skeleton variant="text" width={120} height={20} />
+      ) : (
+        <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
+          Balance: 48.50 {selectedCrypto}
+        </Typography>
+      )}
     </Box>
   );
 }
 
-function YouGetCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
+function YouGetCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount, loading }: any) {
   return (
     <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7) 0%, rgba(0, 255, 170, 0.2) 100%)', borderRadius: '16px', color: '#00FFAA' }}>
       <Typography variant="body2" fontWeight="600" color="#00FFAA">
         You Get
       </Typography>
-      <YouGetCardBody selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
-      <YouGetCardFooter selectedCrypto={selectedCrypto} />
+      <YouGetCardBody loading={loading} selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
+      <YouGetCardFooter loading={loading} selectedCrypto={selectedCrypto} />
     </Box>
   );
 }
@@ -262,6 +263,8 @@ function ConnectWallet() {
 
 // ✅ Main Card Component
 export default function Cards() {
+  const [loading, setLoading] = useState(false);
+
   // State for You Pay / You Get
   const [youPayCrypto, setYouPayCrypto] = useState('BTC');
   const [youPayAmount, setYouPayAmount] = useState(0);
@@ -283,15 +286,23 @@ export default function Cards() {
   };
 
   const handleFetchData = async () => {
-    const response = await axiosInstance.get(`/api/crypto/calculate?from=${youPayCrypto}&to=${youGetCrypto}&amount=${youPayAmount}`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    try {
+      const response = await axiosInstance.get(`/api/crypto/calculate?from=${youPayCrypto}&to=${youGetCrypto}&amount=${youPayAmount}`, {
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-    const data = response.data;
-    setYouGetAmount(data?.convertedAmount);
+      if (response?.status) {
+        setLoading(false);
+        const data = response.data;
+        setYouGetAmount(data?.convertedAmount);
+      }
+    } catch (error) {
+      console.log('Error fetching data:', error);
+    }
   };
 
   useEffect(() => {
+    setLoading(true);
     const getData = setTimeout(() => {
       if (youPayAmount > 0) handleFetchData();
     }, 1000);
@@ -303,7 +314,7 @@ export default function Cards() {
     <Box width="100%" display="flex" flexDirection="column" gap={2}>
       <YouPayCardBar selectedCrypto={youPayCrypto} setSelectedCrypto={setYouPayCrypto} amount={youPayAmount} setAmount={setYouPayAmount} />
       <ExchangeButton onExchange={handleExchange} />
-      <YouGetCardBar selectedCrypto={youGetCrypto} setSelectedCrypto={setYouGetCrypto} amount={youGetAmount} setAmount={setYouGetAmount} />
+      <YouGetCardBar selectedCrypto={youGetCrypto} setSelectedCrypto={setYouGetCrypto} amount={youGetAmount} setAmount={setYouGetAmount} loading={loading} />
       <ConnectWallet />
     </Box>
   );
