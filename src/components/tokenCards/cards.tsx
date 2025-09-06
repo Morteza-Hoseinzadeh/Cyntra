@@ -5,8 +5,9 @@ import { Box, Button, IconButton, MenuItem, Select, Typography, SelectChangeEven
 import { SiBinance, SiBitcoin, SiCardano, SiEthereum, SiTether } from 'react-icons/si';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbArrowsExchange2 } from 'react-icons/tb';
-import axios from 'axios';
 import axiosInstance from '@/utils/hooks/axiosInstance';
+import Footer from '../footer/footer';
+import Status from '../statues/status';
 
 // ✅ Popular Cryptos Mock
 const cryptoList = [
@@ -18,17 +19,25 @@ const cryptoList = [
 ];
 
 // ✅ You Pay Card Components
-function YouPayCardHeader() {
+function YouPayCardHeader({ amount, setAmount }: any) {
+  const handleAcitions = (type: 'Half' | 'Max') => {
+    if (type === 'Half') {
+      setAmount((prev: any) => prev / 2);
+    } else {
+      setAmount((prev: any) => prev * 2);
+    }
+  };
+
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between">
       <Typography variant="body2" fontWeight="600" color="#00FFAA">
         You Pay
       </Typography>
       <Box display="flex" alignItems="center" gap={0.5}>
-        <Button size="small" variant="outlined" sx={buttonStyle}>
+        <Button size="small" variant="outlined" sx={buttonStyle} onClick={() => handleAcitions('Half')}>
           Half
         </Button>
-        <Button size="small" variant="outlined" sx={buttonStyle}>
+        <Button size="small" variant="outlined" sx={buttonStyle} onClick={() => handleAcitions('Max')}>
           Max
         </Button>
       </Box>
@@ -48,15 +57,15 @@ const buttonStyle = {
 
 function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
   const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto);
-  const [youPayCoinDetails, setYouPayCoinDetails] = useState({ symbol: selectedCrypto, amount });
 
   const handleChange = (event: SelectChangeEvent) => {
     setSelectedCrypto(event.target.value);
   };
 
-  useEffect(() => {
-    if (selectedCoin) setYouPayCoinDetails({ symbol: selectedCoin.symbol, amount });
-  }, [selectedCoin, amount]);
+  const handleOnChangeInputValue = (value: string) => {
+    const numericValue = value.replace(/[^0-9.]/g, '');
+    setAmount(parseFloat(numericValue));
+  };
 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
@@ -72,10 +81,10 @@ function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }
       </Box>
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
         <Box>
-          <input type="text" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => setAmount(Number(e.target.value))} style={inputStyle} />
+          <input type="text" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => handleOnChangeInputValue(e.target.value)} style={inputStyle} />
         </Box>
         <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-          ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
+          ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(1)}
         </Typography>
       </Box>
     </Box>
@@ -104,12 +113,54 @@ const inputStyle: any = {
   outline: 'none',
 };
 
-function YouPayCardFooter({ selectedCrypto }: any) {
+function YouPayCardFooter({ selectedCrypto }: { selectedCrypto: string }) {
+  const [loading, setLoading] = useState(false);
+  const [cryptoPrice, setCryptoPrice] = useState<any | null>(null);
+
+  // ✅ Fetch crypto price
+  const handleFetchData = async () => {
+    if (!selectedCrypto) return;
+
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/api/crypto/currency?symbol=${selectedCrypto}`, { headers: { 'Content-Type': 'application/json' } });
+
+      if (response?.status === 200 && response.data?.success) {
+        setCryptoPrice(response?.data?.price || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Debounce fetching
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleFetchData();
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [selectedCrypto]);
+
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
-      <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-        Balance: 16.50 {selectedCrypto}
-      </Typography>
+      {loading ? (
+        <>
+          <Skeleton sx={{ backgroundColor: 'grey' }} variant="text" width={120} height={20} />
+          <Skeleton sx={{ backgroundColor: 'grey' }} variant="text" width={120} height={20} />
+        </>
+      ) : (
+        <>
+          <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
+            Balance: {cryptoPrice?.last ?? '-'} {selectedCrypto}
+          </Typography>
+          <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
+            Last Update: {cryptoPrice?.date.split(' ')[1] ?? '-'}
+          </Typography>
+        </>
+      )}
     </Box>
   );
 }
@@ -117,7 +168,7 @@ function YouPayCardFooter({ selectedCrypto }: any) {
 function YouPayCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
   return (
     <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(255, 0, 255, 0.3) 0%, rgba(0, 255, 255, 0.25) 100%)', borderRadius: '16px', color: '#00FFAA', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
-      <YouPayCardHeader />
+      <YouPayCardHeader amount={amount} setAmount={setAmount} />
       <YouPayCardBody selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
       <YouPayCardFooter selectedCrypto={selectedCrypto} />
     </Box>
@@ -127,16 +178,11 @@ function YouPayCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount }:
 // ✅ You Get Card Components
 function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount, loading }: any) {
   const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto);
-  const [youGetCoinDetails, setYouGetCoinDetails] = useState({ symbol: selectedCrypto, amount });
 
   const handleChange = (event: SelectChangeEvent) => {
     setSelectedCrypto(event.target.value);
     setAmount(0);
   };
-
-  useEffect(() => {
-    if (selectedCoin) setYouGetCoinDetails({ symbol: selectedCoin.symbol, amount });
-  }, [selectedCoin, amount]);
 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
@@ -153,16 +199,16 @@ function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount, 
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
         {loading ? (
           <>
-            <Skeleton variant="text" width={80} height={32} />
-            <Skeleton variant="text" width={100} height={20} />
+            <Skeleton sx={{ backgroundColor: 'grey' }} variant="text" width={80} height={32} />
+            <Skeleton sx={{ backgroundColor: 'grey' }} variant="text" width={100} height={20} />
           </>
         ) : (
           <>
             <Typography variant="h5" fontWeight="700" color="#00FFAA">
-              {Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
+              {Number.isNaN(amount) ? '0.00' : amount?.toFixed(3)}
             </Typography>
             <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-              ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(5)}
+              ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(3)}
             </Typography>
           </>
         )}
@@ -172,14 +218,51 @@ function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount, 
 }
 
 function YouGetCardFooter({ selectedCrypto, loading }: any) {
+  const [loadingState, setLoading] = useState(false);
+  const [cryptoPrice, setCryptoPrice] = useState<any | null>(null);
+
+  // ✅ Fetch crypto price
+  const handleFetchData = async () => {
+    if (!selectedCrypto) return;
+
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/api/crypto/currency?symbol=${selectedCrypto}`, { headers: { 'Content-Type': 'application/json' } });
+
+      if (response?.status === 200 && response.data?.success) {
+        setCryptoPrice(response?.data?.price || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Debounce fetching
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleFetchData();
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [selectedCrypto]);
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1}>
-      {loading ? (
-        <Skeleton variant="text" width={120} height={20} />
+      {loadingState ? (
+        <>
+          <Skeleton sx={{ backgroundColor: 'grey' }} variant="text" width={120} height={20} />
+          <Skeleton sx={{ backgroundColor: 'grey' }} variant="text" width={120} height={20} />
+        </>
       ) : (
-        <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-          Balance: 48.50 {selectedCrypto}
-        </Typography>
+        <>
+          <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
+            Balance: {cryptoPrice?.last ?? '-'} {selectedCrypto}
+          </Typography>
+          <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
+            Last Update: {cryptoPrice?.date.split(' ')[1] ?? '-'}
+          </Typography>
+        </>
       )}
     </Box>
   );
@@ -272,42 +355,40 @@ export default function Cards() {
   const [youGetCrypto, setYouGetCrypto] = useState('ETH');
   const [youGetAmount, setYouGetAmount] = useState(0);
 
+  // ✅ Swap cryptos + amounts
   const handleExchange = () => {
-    setYouPayCrypto((prev) => {
-      const temp = youGetCrypto;
-      setYouGetCrypto(prev);
-      return temp;
-    });
-    setYouPayAmount((prev) => {
-      const temp = youGetAmount;
-      setYouGetAmount(prev);
-      return temp;
-    });
+    setYouPayCrypto(youGetCrypto);
+    setYouGetCrypto(youPayCrypto);
+
+    setYouPayAmount(youGetAmount);
+    setYouGetAmount(youPayAmount);
   };
 
+  // ✅ Fetch conversion result
   const handleFetchData = async () => {
-    try {
-      const response = await axiosInstance.get(`/api/crypto/calculate?from=${youPayCrypto}&to=${youGetCrypto}&amount=${youPayAmount}`, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+    if (!youPayAmount || youPayAmount <= 0) return;
 
-      if (response?.status) {
-        setLoading(false);
-        const data = response.data;
-        setYouGetAmount(data?.convertedAmount);
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/api/crypto/calculate?from=${youPayCrypto}&to=${youGetCrypto}&amount=${youPayAmount}`, { headers: { 'Content-Type': 'application/json' } });
+
+      if (response?.status === 200) {
+        setYouGetAmount(response.data?.convertedAmount || 0);
       }
     } catch (error) {
-      console.log('Error fetching data:', error);
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // ✅ Debounce user input before fetching
   useEffect(() => {
-    setLoading(true);
-    const getData = setTimeout(() => {
-      if (youPayAmount > 0) handleFetchData();
-    }, 1000);
+    const timer = setTimeout(() => {
+      handleFetchData();
+    }, 800);
 
-    return () => clearTimeout(getData);
+    return () => clearTimeout(timer);
   }, [youPayCrypto, youGetCrypto, youPayAmount]);
 
   return (
@@ -316,6 +397,8 @@ export default function Cards() {
       <ExchangeButton onExchange={handleExchange} />
       <YouGetCardBar selectedCrypto={youGetCrypto} setSelectedCrypto={setYouGetCrypto} amount={youGetAmount} setAmount={setYouGetAmount} loading={loading} />
       <ConnectWallet />
+      <Status fromCrypto={youPayCrypto} toCrypto={youGetCrypto} />
+      <Footer loading={loading} fromSelectedCrypto={youPayCrypto} toSelectedCrypto={youGetCrypto} cryptoList={cryptoList} />
     </Box>
   );
 }
