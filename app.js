@@ -12,7 +12,7 @@ const { router: apiRoutes } = require('./server/route');
 const PORT = process.env.PORT || 5000;
 const dev = process.env.NODE_ENV !== 'production';
 
-const nextApp = next({ dev });
+const nextApp = next({ dev, PORT });
 const handle = nextApp.getRequestHandler();
 
 const app = express();
@@ -26,7 +26,25 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // API Routes
 app.use('/api', apiRoutes);
 
-server.listen(PORT, (err) => {
-  if (err) throw err;
-  console.log(`> Server ready on ${PORT}`);
+// Next.js Routes
+nextApp.prepare().then(() => {
+  const routes = ['/'];
+
+  routes.forEach((route) => {
+    app.get(route, (req, res) => nextApp.render(req, res, route, req.query));
+  });
+
+  // Handle all other routes with Next.js
+  app.all('*', (req, res) => handle(req, res));
+
+  // Error handling
+  server.on('error', (error) => {
+    console.error('Server error:', error);
+  });
+
+  // Start server
+  server.listen(PORT, (err) => {
+    if (err) throw err;
+    console.log(`> Environment: ${dev ? 'development' : 'production'}`);
+  });
 });
