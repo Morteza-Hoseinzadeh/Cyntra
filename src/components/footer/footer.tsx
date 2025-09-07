@@ -27,7 +27,7 @@ export default function Footer({ loading, fromSelectedCrypto, toSelectedCrypto, 
     <Box sx={{ position: 'fixed', bottom: 12, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 1000 }}>
       <Box sx={{ backgroundColor: '#004BA0', width: '100%', maxWidth: 500, display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2, py: 1.5, boxSizing: 'border-box', borderRadius: '24px', mx: 2 }}>
         <Box sx={{ backgroundColor: '#00152dff', borderRadius: '18px', p: 0.1 }}>
-          <IconButton>{loading ? <Skeleton sx={{ backgroundColor: 'grey' }} variant="circular" width={32} height={32} /> : handleFindCryptoCoin(fromSelectedCrypto)?.icon || '-'}</IconButton>
+          <IconButton sx={{ color: '#fff' }}>{loading ? <Skeleton sx={{ backgroundColor: 'grey' }} variant="circular" width={32} height={32} /> : handleFindCryptoCoin(fromSelectedCrypto)?.icon || '-'}</IconButton>
         </Box>
 
         <Box display={'flex'} alignItems={'center'} gap={1}>
@@ -39,7 +39,7 @@ export default function Footer({ loading, fromSelectedCrypto, toSelectedCrypto, 
         </Box>
 
         <Box sx={{ backgroundColor: '#00152dff', borderRadius: '18px', p: 0.1 }}>
-          <IconButton>{loading ? <Skeleton sx={{ backgroundColor: 'grey' }} variant="circular" width={32} height={32} /> : handleFindCryptoCoin(toSelectedCrypto)?.icon || '-'}</IconButton>
+          <IconButton sx={{ color: '#fff' }}>{loading ? <Skeleton sx={{ backgroundColor: 'grey' }} variant="circular" width={32} height={32} /> : handleFindCryptoCoin(toSelectedCrypto)?.icon || '-'}</IconButton>
         </Box>
       </Box>
     </Box>

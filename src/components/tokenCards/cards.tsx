@@ -2,20 +2,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Button, IconButton, MenuItem, Select, Typography, SelectChangeEvent, Dialog, DialogContent, Skeleton } from '@mui/material';
-import { SiBinance, SiBitcoin, SiCardano, SiEthereum, SiTether } from 'react-icons/si';
+import { SiAlgorand, SiBinance, SiBitcoin, SiBitcoincash, SiCardano, SiChainlink, SiDogecoin, SiEthereum, SiLitecoin, SiMonero, SiPolkadot, SiPolygon, SiRipple, SiSolana, SiStellar, SiTether } from 'react-icons/si';
 import { IoIosArrowDown } from 'react-icons/io';
 import { TbArrowsExchange2 } from 'react-icons/tb';
 import axiosInstance from '@/utils/hooks/axiosInstance';
 import Footer from '../footer/footer';
 import Status from '../statues/status';
 
-// ✅ Popular Cryptos Mock
 const cryptoList = [
-  { symbol: 'BTC', name: 'Bitcoin', icon: <SiBitcoin size={32} color="#fff" /> },
-  { symbol: 'ETH', name: 'Ethereum', icon: <SiEthereum size={32} color="#fff" /> },
-  { symbol: 'USDT', name: 'Tether', icon: <SiTether size={32} color="#fff" /> },
-  { symbol: 'BNB', name: 'Binance Coin', icon: <SiBinance size={32} color="#fff" /> },
-  { symbol: 'ADA', name: 'Cardano', icon: <SiCardano size={32} color="#fff" /> },
+  { symbol: 'BTC', name: 'Bitcoin', icon: <SiBitcoin size={32} /> },
+  { symbol: 'ETH', name: 'Ethereum', icon: <SiEthereum size={32} /> },
+  { symbol: 'USDT', name: 'Tether', icon: <SiTether size={32} /> },
+  { symbol: 'BNB', name: 'Binance Coin', icon: <SiBinance size={32} /> },
+  { symbol: 'ADA', name: 'Cardano', icon: <SiCardano size={32} /> },
+  { symbol: 'SOL', name: 'Solana', icon: <SiSolana size={32} /> },
+  { symbol: 'XRP', name: 'Ripple', icon: <SiRipple size={32} /> },
+  { symbol: 'DOT', name: 'Polkadot', icon: <SiPolkadot size={32} /> },
+  { symbol: 'DOGE', name: 'Dogecoin', icon: <SiDogecoin size={32} /> },
+  { symbol: 'MATIC', name: 'Polygon', icon: <SiPolygon size={32} /> },
+  { symbol: 'LTC', name: 'Litecoin', icon: <SiLitecoin size={32} /> },
+  { symbol: 'LINK', name: 'Chainlink', icon: <SiChainlink size={32} /> },
+  { symbol: 'XLM', name: 'Stellar', icon: <SiStellar size={32} /> },
+  { symbol: 'ALGO', name: 'Algorand', icon: <SiAlgorand size={32} /> },
+  { symbol: 'BCH', name: 'Bitcoin Cash', icon: <SiBitcoincash size={32} /> },
+  { symbol: 'XMR', name: 'Monero', icon: <SiMonero size={32} /> },
 ];
 
 // ✅ You Pay Card Components
@@ -55,8 +65,8 @@ const buttonStyle = {
   '&:hover': { borderColor: '#00FFAA', backgroundColor: 'rgba(0, 255, 170, 0.1)' },
 };
 
-function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
-  const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto);
+function YouPayCardBody({ selectedCrypto, setSelectedCrypto, convertedSelectedCrypto, amount, setAmount }: any) {
+  const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto && c.symbol !== convertedSelectedCrypto);
 
   const handleChange = (event: SelectChangeEvent) => {
     setSelectedCrypto(event.target.value);
@@ -70,13 +80,15 @@ function YouPayCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount }
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
       <Box display="flex" alignItems="center">
-        <Box sx={{ backgroundColor: 'rgba(25, 118, 210, 0.2)', p: 1, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{selectedCoin?.icon}</Box>
+        <Box sx={{ backgroundColor: 'rgba(25, 118, 210, 0.2)', p: 1, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{selectedCoin?.icon}</Box>
         <Select value={selectedCrypto} onChange={handleChange} size="small" sx={selectStyle} IconComponent={IoIosArrowDown as any}>
-          {cryptoList.map((coin) => (
-            <MenuItem key={coin.symbol} value={coin.symbol} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {coin.symbol}
-            </MenuItem>
-          ))}
+          {cryptoList
+            ?.filter((item) => item.symbol !== convertedSelectedCrypto)
+            .map((coin) => (
+              <MenuItem key={coin.symbol} value={coin.symbol} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {coin.symbol}
+              </MenuItem>
+            ))}
         </Select>
       </Box>
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
@@ -165,19 +177,19 @@ function YouPayCardFooter({ selectedCrypto }: { selectedCrypto: string }) {
   );
 }
 
-function YouPayCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount }: any) {
+function YouPayCardBar({ selectedCrypto, setSelectedCrypto, convertedSelectedCrypto, amount, setAmount }: any) {
   return (
     <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(255, 0, 255, 0.3) 0%, rgba(0, 255, 255, 0.25) 100%)', borderRadius: '16px', color: '#00FFAA', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
       <YouPayCardHeader amount={amount} setAmount={setAmount} />
-      <YouPayCardBody selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
+      <YouPayCardBody convertedSelectedCrypto={convertedSelectedCrypto} selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
       <YouPayCardFooter selectedCrypto={selectedCrypto} />
     </Box>
   );
 }
 
 // ✅ You Get Card Components
-function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount, loading }: any) {
-  const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto);
+function YouGetCardBody({ selectedCrypto, setSelectedCrypto, convertedSelectedCrypto, amount, setAmount, loading }: any) {
+  const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto && c.symbol !== convertedSelectedCrypto);
 
   const handleChange = (event: SelectChangeEvent) => {
     setSelectedCrypto(event.target.value);
@@ -187,13 +199,15 @@ function YouGetCardBody({ selectedCrypto, setSelectedCrypto, amount, setAmount, 
   return (
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
       <Box display="flex" alignItems="center">
-        <Box sx={{ backgroundColor: 'rgba(0, 255, 170, 0.1)', p: 1, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{selectedCoin?.icon}</Box>
+        <Box sx={{ backgroundColor: 'rgba(0, 255, 170, 0.1)', p: 1, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{selectedCoin?.icon}</Box>
         <Select value={selectedCrypto} onChange={handleChange} size="small" sx={selectStyle} IconComponent={IoIosArrowDown as any}>
-          {cryptoList.map((coin) => (
-            <MenuItem key={coin.symbol} value={coin.symbol} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {coin.symbol}
-            </MenuItem>
-          ))}
+          {cryptoList
+            ?.filter((item) => item.symbol !== convertedSelectedCrypto)
+            ?.map((coin) => (
+              <MenuItem key={coin.symbol} value={coin.symbol} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {coin.symbol}
+              </MenuItem>
+            ))}
         </Select>
       </Box>
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
@@ -268,13 +282,13 @@ function YouGetCardFooter({ selectedCrypto, loading }: any) {
   );
 }
 
-function YouGetCardBar({ selectedCrypto, setSelectedCrypto, amount, setAmount, loading }: any) {
+function YouGetCardBar({ selectedCrypto, setSelectedCrypto, convertedSelectedCrypto, amount, setAmount, loading }: any) {
   return (
     <Box width="100%" display="flex" flexDirection="column" p={2.5} sx={{ background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.7) 0%, rgba(0, 255, 170, 0.2) 100%)', borderRadius: '16px', color: '#00FFAA' }}>
       <Typography variant="body2" fontWeight="600" color="#00FFAA">
         You Get
       </Typography>
-      <YouGetCardBody loading={loading} selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
+      <YouGetCardBody convertedSelectedCrypto={convertedSelectedCrypto} loading={loading} selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} amount={amount} setAmount={setAmount} />
       <YouGetCardFooter loading={loading} selectedCrypto={selectedCrypto} />
     </Box>
   );
@@ -292,7 +306,7 @@ function ExchangeButton({ onExchange }: { onExchange: () => void }) {
   return (
     <Box position={'relative'} width={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} my={-1}>
       <Box position={'absolute'}>
-        <IconButton size="large" onClick={handleChange} sx={{ transform: toggleSwitchCrypto ? 'rotate(90deg)' : 'rotate(270deg)', backgroundColor: '#0A1929', color: '#00FFAA', p: 1.5, borderRadius: '50%', border: '1px solid', borderColor: '#0A1929', zIndex: 2, '&:hover': { backgroundColor: '#0A1929', transition: 'transform 0.3s ease-in-out' } }}>
+        <IconButton size="large" onClick={handleChange} sx={{ transform: toggleSwitchCrypto ? 'rotate(180deg)' : 'rotate(360deg)', backgroundColor: '#0A1929', color: '#00FFAA', p: 1.5, borderRadius: '50%', border: '1px solid', borderColor: '#0A1929', zIndex: 2, '&:hover': { backgroundColor: '#0A1929', transition: 'transform 0.3s ease-in-out' } }}>
           <TbArrowsExchange2 size={30} style={{ transform: 'rotate(90deg)' }} />
         </IconButton>
       </Box>
@@ -393,9 +407,9 @@ export default function Cards() {
 
   return (
     <Box width="100%" display="flex" flexDirection="column" gap={2}>
-      <YouPayCardBar selectedCrypto={youPayCrypto} setSelectedCrypto={setYouPayCrypto} amount={youPayAmount} setAmount={setYouPayAmount} />
+      <YouPayCardBar selectedCrypto={youPayCrypto} convertedSelectedCrypto={youGetCrypto} setSelectedCrypto={setYouPayCrypto} amount={youPayAmount} setAmount={setYouPayAmount} />
       <ExchangeButton onExchange={handleExchange} />
-      <YouGetCardBar selectedCrypto={youGetCrypto} setSelectedCrypto={setYouGetCrypto} amount={youGetAmount} setAmount={setYouGetAmount} loading={loading} />
+      <YouGetCardBar selectedCrypto={youGetCrypto} convertedSelectedCrypto={youPayCrypto} setSelectedCrypto={setYouGetCrypto} amount={youGetAmount} setAmount={setYouGetAmount} loading={loading} />
       <ConnectWallet />
       <Status fromCrypto={youPayCrypto} toCrypto={youGetCrypto} />
       <Footer loading={loading} fromSelectedCrypto={youPayCrypto} toSelectedCrypto={youGetCrypto} cryptoList={cryptoList} />
