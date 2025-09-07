@@ -31,10 +31,6 @@ export default function Header() {
             <img style={{ marginRight: 8 }} src="https://flagsapi.com/GB/flat/64.png" alt="English" width={25} height={25} />
             <Typography>English</Typography>
           </MenuItem>
-          <MenuItem onClick={() => handleClose('AR')}>
-            <img style={{ marginRight: 8 }} src="https://flagsapi.com/SA/flat/64.png" alt="Arabic" width={25} height={25} />
-            <Typography>Arabic</Typography>
-          </MenuItem>
         </Menu>
       </Box>
       <Box>
