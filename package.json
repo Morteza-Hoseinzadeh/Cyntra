@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build && nodemon app.js",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "node app.js",
+    "server": "node server.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
