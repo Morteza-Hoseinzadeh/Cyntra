@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <Box display={'flex'} flexDirection="column" alignItems="center" gap={4}>
       <Header />
-      <Box minWidth={{ xs: '100%', sm: '75%', md: 500 }}>
+      <Box width={{ xs: '100%', sm: '75%', md: 500 }}>
         <Cards />
       </Box>
     </Box>

@@ -2,12 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Button, IconButton, MenuItem, Select, Typography, SelectChangeEvent, Dialog, DialogContent, Skeleton } from '@mui/material';
+
 import { SiAlgorand, SiBinance, SiBitcoin, SiBitcoincash, SiCardano, SiChainlink, SiDogecoin, SiEthereum, SiLitecoin, SiMonero, SiPolkadot, SiPolygon, SiRipple, SiSolana, SiStellar, SiTether } from 'react-icons/si';
 import { IoIosArrowDown } from 'react-icons/io';
-import { TbArrowsExchange2 } from 'react-icons/tb';
+import { TbArrowsExchange2, TbSearch } from 'react-icons/tb';
+import { FaArrowTrendUp } from 'react-icons/fa6';
+
 import axiosInstance from '@/utils/hooks/axiosInstance';
+
 import Footer from '../footer/footer';
 import Status from '../statues/status';
+import CustomDialog from '../custom/CustomDialog';
 
 const cryptoList = [
   { symbol: 'BTC', name: 'Bitcoin', icon: <SiBitcoin size={32} /> },
@@ -66,11 +71,16 @@ const buttonStyle = {
 };
 
 function YouPayCardBody({ selectedCrypto, setSelectedCrypto, convertedSelectedCrypto, amount, setAmount }: any) {
+  const [openModal, setOpenModal] = useState<any>(true);
+
   const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto && c.symbol !== convertedSelectedCrypto);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setSelectedCrypto(event.target.value);
+  const handleSelectCoin = (coin: any) => {
+    setSelectedCrypto(coin.symbol);
+    setOpenModal(false);
   };
+
+  const handleOpenModal = () => setOpenModal(!openModal);
 
   const handleOnChangeInputValue = (value: string) => {
     const numericValue = value.replace(/[^0-9.]/g, '');
@@ -78,28 +88,57 @@ function YouPayCardBody({ selectedCrypto, setSelectedCrypto, convertedSelectedCr
   };
 
   return (
-    <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
-      <Box display="flex" alignItems="center">
-        <Box sx={{ backgroundColor: 'rgba(25, 118, 210, 0.2)', p: 1, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{selectedCoin?.icon}</Box>
-        <Select value={selectedCrypto} onChange={handleChange} size="small" sx={selectStyle} IconComponent={IoIosArrowDown as any}>
-          {cryptoList
-            ?.filter((item) => item.symbol !== convertedSelectedCrypto)
-            .map((coin) => (
-              <MenuItem key={coin.symbol} value={coin.symbol} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {coin.symbol}
-              </MenuItem>
-            ))}
-        </Select>
-      </Box>
-      <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
-        <Box>
-          <input type="text" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => handleOnChangeInputValue(e.target.value)} style={inputStyle} />
+    <>
+      <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
+        <Box display="flex" alignItems="center">
+          <Box sx={{ backgroundColor: 'rgba(25, 118, 210, 0.2)', p: 1, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{selectedCoin?.icon}</Box>
+          <Button variant="outlined" sx={{ color: '#00FFAA', borderColor: '#00FFAA', borderRadius: '16px', fontSize: '1rem', fontWeight: 600, textTransform: 'none', ml: 1, px: 2, minWidth: 'auto', '&:hover': { backgroundColor: 'transparent' } }} endIcon={<IoIosArrowDown size={20} />} onClick={handleOpenModal}>
+            {selectedCrypto}
+          </Button>
         </Box>
-        <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
-          ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(1)}
-        </Typography>
+        <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
+          <Box>
+            <input type="text" value={Number.isNaN(amount) ? '' : amount} onChange={(e) => handleOnChangeInputValue(e.target.value)} style={inputStyle} />
+          </Box>
+          <Typography variant="caption" color="rgba(0, 255, 170, 0.7)">
+            ≈ ${Number.isNaN(amount) ? '0.00' : amount?.toFixed(1)}
+          </Typography>
+        </Box>
       </Box>
-    </Box>
+
+      <CustomDialog open={openModal} onClose={handleOpenModal} maxWidth="xs" title={'Select a token'}>
+        <Box position={'relative'} width={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'} mb={3}>
+          <input type="text" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', width: '100%', textAlign: 'left', fontWeight: 'normal', fontSize: '1rem', padding: '12px', paddingLeft: '48px', borderRadius: '16px', color: '#fff' }} placeholder="Search token ..." />
+          <Box position={'absolute'} left={16}>
+            <TbSearch size={20} style={{ color: 'rgba(255, 255, 255, 0.5)' }} />
+          </Box>
+          <Box position={'absolute'} right={16} sx={{ cursor: 'pointer' }}>
+            <Box display={'flex'} alignContent={'center'} justifyContent={'center'} gap={1}>
+              <img src="/assets/icon/all-networks-icon.png" alt="all-networks-icon.png" style={{ width: 25, height: 25 }} />
+              <Box mt={0.4}>
+                <IoIosArrowDown size={20} color="#fff" />
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        <Box display={'flex'} alignItems={'center'} justifyContent={'space-between'} gap={1} mb={3}>
+          {cryptoList?.slice(0, 5).map((coin, index) => (
+            <Box key={index} sx={{ width: '100%', backgroundColor: '#004BA0', color: '#fff', p: 1, borderRadius: '16px', textAlign: 'center', cursor: 'pointer', transition: 'all ease 0.1s', '&:hover': { backgroundColor: '#1565C0' } }} onClick={() => handleSelectCoin(coin)}>
+              <Box width={'100%'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+                {coin.icon}
+              </Box>
+              <Typography variant="caption" color="#fff">
+                {coin.symbol}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+        <Box width={'100%'} display={'flex'} alignItems={'center'} justifyContent={'left'} gap={1} color={'rgba(255,255,255,0.5)'}>
+          <FaArrowTrendUp />
+          <Typography variant="body2">Tokens by 24H volume</Typography>
+        </Box>
+      </CustomDialog>
+    </>
   );
 }
 
@@ -189,7 +228,11 @@ function YouPayCardBar({ selectedCrypto, setSelectedCrypto, convertedSelectedCry
 
 // ✅ You Get Card Components
 function YouGetCardBody({ selectedCrypto, setSelectedCrypto, convertedSelectedCrypto, amount, setAmount, loading }: any) {
+  const [openModal, setOpenModal] = useState<Boolean>(false);
+
   const selectedCoin = cryptoList.find((c) => c.symbol === selectedCrypto && c.symbol !== convertedSelectedCrypto);
+
+  const handleOpenModal = () => setOpenModal(!openModal);
 
   const handleChange = (event: SelectChangeEvent) => {
     setSelectedCrypto(event.target.value);
@@ -200,15 +243,9 @@ function YouGetCardBody({ selectedCrypto, setSelectedCrypto, convertedSelectedCr
     <Box display="flex" alignItems="center" justifyContent="space-between" mt={1.5}>
       <Box display="flex" alignItems="center">
         <Box sx={{ backgroundColor: 'rgba(0, 255, 170, 0.1)', p: 1, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{selectedCoin?.icon}</Box>
-        <Select value={selectedCrypto} onChange={handleChange} size="small" sx={selectStyle} IconComponent={IoIosArrowDown as any}>
-          {cryptoList
-            ?.filter((item) => item.symbol !== convertedSelectedCrypto)
-            ?.map((coin) => (
-              <MenuItem key={coin.symbol} value={coin.symbol} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {coin.symbol}
-              </MenuItem>
-            ))}
-        </Select>
+        <Button variant="outlined" sx={{ color: '#00FFAA', borderColor: '#00FFAA', borderRadius: '16px', fontSize: '1rem', fontWeight: 600, textTransform: 'none', ml: 1, px: 2, minWidth: 'auto', '&:hover': { backgroundColor: 'transparent' } }} endIcon={<IoIosArrowDown size={20} />} onClick={handleOpenModal}>
+          {selectedCrypto}
+        </Button>
       </Box>
       <Box display="flex" flexDirection="column" alignItems="flex-end" gap={0.5}>
         {loading ? (
