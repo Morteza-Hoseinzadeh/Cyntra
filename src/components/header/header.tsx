@@ -35,7 +35,7 @@ export default function Header() {
       </Box>
       <Box>
         <Typography variant="h6" component="h6" fontWeight="600" color="#fff">
-          Currency Convertor
+          Cyntra
         </Typography>
       </Box>
       <Box position={'relative'} display={'flex'} alignItems={'center'} gap={0.5}>

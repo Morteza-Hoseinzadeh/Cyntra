@@ -12,7 +12,7 @@ const { router: apiRoutes } = require('./server/route');
 const PORT = process.env.PORT || 5000;
 const dev = process.env.NODE_ENV !== 'production';
 
-const nextApp = next({ dev, PORT });
+const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 
 const app = express();
